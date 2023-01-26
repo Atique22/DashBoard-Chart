@@ -4,10 +4,10 @@ import FileGraph from './MyComponent'
 // Buffer = require("buffer").Buffer;
 // window.Buffer = window.Buffer;
 
-import { Buffer } from "buffer";
+// import { Buffer } from "buffer";
 
-Buffer.from("anything", "base64");
-window.Buffer = window.Buffer || require("buffer").Buffer; 
+// Buffer.from("anything", "base64");
+// window.Buffer = window.Buffer || require("buffer").Buffer; 
 function App() {
   return (
     <div>

@@ -1,58 +1,92 @@
-import React, { useState } from 'react';
-import { Line } from 'react-chartjs-2';
-import { saveAs } from 'file-saver';
 
-const FileGraph = () => {
-  const [fileData, setFileData] = useState(null);
+import React, { useState } from "react";
 
-  const handleFileInput = (event) => {
-    const file = event.target.files[0];
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const data = e.target.result;
-      setFileData(data);
-    };
-    reader.readAsText(file);
-  };
-
-  const handleSave = () => {
-    saveAs(new Blob([fileData]), 'fileData.txt');
-  };
-
-  const data = {
-    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-    datasets: [
-      {
-        label: 'My First dataset',
-        fill: false,
-        lineTension: 0.1,
-        backgroundColor: 'rgba(75,192,192,0.4)',
-        borderColor: 'rgba(75,192,192,1)',
-        borderCapStyle: 'butt',
-        borderDash: [],
-        borderDashOffset: 0.0,
-        borderJoinStyle: 'miter',
-        pointBorderColor: 'rgba(75,192,192,1)',
-        pointBackgroundColor: '#fff',
-        pointBorderWidth: 1,
-        pointHoverRadius: 5,
-        pointHoverBackgroundColor: 'rgba(75,192,192,1)',
-        pointHoverBorderColor: 'rgba(220,220,220,1)',
-        pointHoverBorderWidth: 2,
-        pointRadius: 1,
-        pointHitRadius: 10,
-        data: [65, 59, 80, 81, 56, 55, 40],
-      },
-    ],
-  };
-
-  return (
-    <div>
-      <input type="file" onChange={handleFileInput} />
-      <button onClick={handleSave}>Save File</button>
-      {fileData && <Line data={data} />}
-    </div>
-  );
-};
+   function FileGraph() {
+     const [file, setFile] = useState();
+     const [array, setArray] = useState([]);
+   
+     const fileReader = new FileReader();
+   
+     const handleOnChange = (e) => {
+       setFile(e.target.files[0]);
+     };
+   
+     const csvFileToArray = string => {
+       const csvHeader = string.slice(0, string.indexOf("\n")).split(",");
+       const csvRows = string.slice(string.indexOf("\n") + 1).split("\n");
+   
+       const array = csvRows.map(i => {
+         const values = i.split(",");
+         const obj = csvHeader.reduce((object, header, index) => {
+           object[header] = values[index];
+           return object;
+         }, {});
+         return obj;
+       });
+   
+       setArray(array);
+     };
+   
+     const handleOnSubmit = (e) => {
+       e.preventDefault();
+   
+       if (file) {
+         fileReader.onload = function (event) {
+           const text = event.target.result;
+           csvFileToArray(text);
+         };
+   
+         fileReader.readAsText(file);
+       }
+     };
+   
+     const headerKeys = Object.keys(Object.assign({}, ...array));
+   
+     return (
+       <div style={{ textAlign: "center" }}>
+         <h1>REACTJS CSV IMPORT EXAMPLE </h1>
+         <form>
+           <input
+             type={"file"}
+             id={"csvFileInput"}
+             accept={".csv"}
+             onChange={handleOnChange}
+           />
+   
+           <button
+             onClick={(e) => {
+               handleOnSubmit(e);
+             }}
+           >
+             IMPORT CSV
+           </button>
+         </form>
+   
+         <br />
+   
+         <table>
+           <thead>
+             <tr key={"header"}>
+               {headerKeys.map((key) => (
+                 <th>{key}</th>
+               ))}
+             </tr>
+           </thead>
+   
+           <tbody>
+             {array.map((item) => (
+               <tr key={item.id}>
+                 {Object.values(item).map((val) => (
+                   <td>{val}</td>
+                 ))}
+               </tr>
+             ))}
+           </tbody>
+         </table>
+       </div>
+     );
+   
+    }
+ 
 
 export default FileGraph;
